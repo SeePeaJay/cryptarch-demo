@@ -1,25 +1,28 @@
 <template>
   <div id="app">
-    <!-- <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/> -->
-	<textarea name="editor" onkeydown="if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}" v-model="message"></textarea>
-	<section>{{ message }}</section>
+		<textarea name="editor" onkeydown="if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}" v-model="engram"></textarea>
+		<section v-html="engramInHtml"></section>
   </div>
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld.vue'
+const Cryptarch = require('../src/cryptarch/cryptarch');
 
 export default {
   name: 'App',
   data() {
 		return {
-			message: ''
+			engram: '* Title\n\n=1= Level 1 Subtitle\n\n=2= Level 2 Subtitle\n\n=3= Level 3 Subtitle\n\n. Unordered list item a\n. Unordered list item b\n. Unordered list item c\n\n1. Ordered list item 1\n2. Ordered list item 2\n3. Ordered list item 3\n\n---\n\n$http://static.wikia.nocookie.net/ninjajojos-bizarre-adventure/images/f/f7/Made_in_Heaven.png/revision/latest/top-crop/width/360/height/450?cb=20210721002513{}\n\nA paragraph.\n\nA paragraph with `@bold@`, `/italic/`, `_underlined_`, `=highlighted=`, and `-strikethrough-` text.\n\nA paragraph with nested styles: `@bold, `/italic, `_underlined, `=highlighted, and `-strikethrough-`=`_`/`@` text.\n\nA paragraph with two types of links: autolink ( www.google.com ), and `_link alias_(www.google.com)`.\n\nA paragraph with an inline image: $http://static.wikia.nocookie.net/ninjajojos-bizarre-adventure/images/f/f7/Made_in_Heaven.png/revision/latest/top-crop/width/360/height/450?cb=20210721002513{}.',
 		}
   },
-  components: {
-    // HelloWorld
-  }
+	computed: {
+		engramInHtml() {
+			let cryptarch = new Cryptarch();
+			const html = cryptarch.decrypt(this.engram);
+			cryptarch = null; // is there a better way to prevent memory leak than this?
+			return html;
+		}
+	},
 }
 
 </script>
@@ -29,38 +32,34 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
   margin-top: 60px;
 }
 
 textarea {
-	top: 0;
-	left: 0;
-	width: 50%;
-	padding: 30px 10px;
 	background: #fff;
-	display: inline-block;
-	appearance: auto;
-	cursor: text;
-	resize: horizontal;
+	border: none;
+	left: 0;
+	outline: none;
+	padding: 30px 10px;
+	resize: none; 
 	white-space: pre-wrap;
-	word-wrap: break-word;
+	word-wrap: break-word;	
 }
 
 section {
-	top: 0;
-	left: 50%;
-	width: 50%;
-	padding: 10px;
-	overflow: auto;
+	background: #f5f6f8;
 	display: inline-block;
+	left: 50%;
+	overflow: auto;
+	padding: 10px;
 }
 
 textarea, section {
-	position: absolute;
 	box-sizing: border-box;
 	height: 100%;
-	border: none;
+	position: absolute;
+	top: 0;
+	width: 50%;
 }
 </style>

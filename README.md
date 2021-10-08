@@ -1,4 +1,5 @@
 # cryptarch-demo
+A simple editor used to demonstrate the capacity of [cryptarch](https://github.com/SeePeaJay/cryptarch). 
 
 ## Project setup
 ```

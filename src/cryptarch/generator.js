@@ -9,7 +9,7 @@ class Generator {
 	toHtml(tree) {
 		let html = '';
 
-		for (const rootBlockNode of tree.blocks) {
+		tree.rootBlockNodes.forEach((rootBlockNode) => {
 			switch (rootBlockNode.type) {
 				case TREE_NODE_TYPES.title:
 					html += this.getHtmlFromTitleNode(rootBlockNode);
@@ -38,69 +38,73 @@ class Generator {
 				default:
 					html += this.getHtmlFromParagraphNode(rootBlockNode);
 			}
-		}
+		});
 
 		return html;
 	}
 
 	getHtmlFromTitleNode(titleNode) {
-		return `<h1>${this.getHtmlFromTextNodes(titleNode.text)}</h1>`;
+		return `<h1>${this.getHtmlFromTextNodes(titleNode.textNodes)}</h1>`;
 	}
 
 	getHtmlFromLevel1SubtitleNode(level1SubtitleNode) {
-		return `<h2>${this.getHtmlFromTextNodes(level1SubtitleNode.text)}</h2>`;
+		return `<h2>${this.getHtmlFromTextNodes(level1SubtitleNode.textNodes)}</h2>`;
 	}
 
 	getHtmlFromLevel2SubtitleNode(level2SubtitleNode) {
-		return `<h3>${this.getHtmlFromTextNodes(level2SubtitleNode.text)}</h3>`;
+		return `<h3>${this.getHtmlFromTextNodes(level2SubtitleNode.textNodes)}</h3>`;
 	}
 
 	getHtmlFromLevel3SubtitleNode(level3SubtitleNode) {
-		return `<h4>${this.getHtmlFromTextNodes(level3SubtitleNode.text)}</h4>`;
+		return `<h4>${this.getHtmlFromTextNodes(level3SubtitleNode.textNodes)}</h4>`;
 	}
 
 	getHtmlFromUnorderedListNode(unorderedListNode) {
-		return `<ul>${this.getHtmlFromUnorderedListItemNodes(unorderedListNode.items)}</ul>`;
+		return `<ul>${this.getHtmlFromUnorderedListItemNodes(unorderedListNode.listItemNodes)}</ul>`;
 	}
 
 	getHtmlFromUnorderedListItemNodes(unorderedListItemNodes) {
 		let html = '';
 
-		for (const listItemNode of unorderedListItemNodes) {
-			if ('list' in listItemNode) {
-				html += `<li>${this.getHtmlFromTextNodes(listItemNode.text)}${this.getHtmlFromUnorderedListNode(listItemNode.list)}</li>`;
+		unorderedListItemNodes.forEach((listItemNode) => {
+			if ('listNode' in listItemNode && listItemNode.listNode.type === TREE_NODE_TYPES.unorderedList) {
+				html += `<li>${this.getHtmlFromTextNodes(listItemNode.textNodes)}${this.getHtmlFromUnorderedListNode(listItemNode.listNode)}</li>`;
+			} else if ('listNode' in listItemNode && listItemNode.listNode.type === TREE_NODE_TYPES.orderedList) {
+				html += `<li>${this.getHtmlFromTextNodes(listItemNode.textNodes)}${this.getHtmlFromOrderedListNode(listItemNode.listNode)}</li>`;
 			} else {
-				html += `<li>${this.getHtmlFromTextNodes(listItemNode.text)}</li>`;
+				html += `<li>${this.getHtmlFromTextNodes(listItemNode.textNodes)}</li>`;
 			}
-		}	
+		});
 
 		return html;
 	}
 
 	getHtmlFromOrderedListNode(orderedListNode) {
-		return `<ol>${this.getHtmlFromOrderedListItemNodes(orderedListNode.items)}</ol>`;
+		return `<ol>${this.getHtmlFromOrderedListItemNodes(orderedListNode.listItemNodes)}</ol>`;
 	}
 
 	getHtmlFromOrderedListItemNodes(orderedListItemNodes) {
 		let html = '';
 
-		for (const listItemNode of orderedListItemNodes) {
-			if (listItemNode.list) {
-				html += `<li>${this.getHtmlFromTextNodes(listItemNode.text)}${this.getHtmlFromOrderedListNode(listItemNode.list)}</li>`;
+		orderedListItemNodes.forEach((listItemNode) => {
+			if ('listNode' in listItemNode && listItemNode.listNode.type === TREE_NODE_TYPES.orderedList) {
+				html += `<li>${this.getHtmlFromTextNodes(listItemNode.textNodes)}${this.getHtmlFromOrderedListNode(listItemNode.listNode)}</li>`;
+			} else if ('listNode' in listItemNode && listItemNode.listNode.type === TREE_NODE_TYPES.unorderedList) {
+				html += `<li>${this.getHtmlFromTextNodes(listItemNode.textNodes)}${this.getHtmlFromUnorderedListNode(listItemNode.listNode)}</li>`;
 			} else {
-				html += `<li>${this.getHtmlFromTextNodes(listItemNode.text)}</li>`;
+				html += `<li>${this.getHtmlFromTextNodes(listItemNode.textNodes)}</li>`;
 			}
-		}	
+		});
 
 		return html;
 	}
 
 	getHtmlFromHorizontalRuleNode() {
-		return `<hr>`;
+		return '<hr>';
 	}
 
 	getHtmlFromParagraphNode(paragraphNode) {
-		return `<p>${this.getHtmlFromTextNodes(paragraphNode.text)}</p>`;
+		return `<p>${this.getHtmlFromTextNodes(paragraphNode.textNodes)}</p>`;
 	}
 
 	getHtmlFromImageNode(imageNode) {
@@ -110,7 +114,7 @@ class Generator {
 	getHtmlFromTextNodes(textNodes) {
 		let html = '';
 
-		for (const textNode of textNodes) {
+		textNodes.forEach((textNode) => {
 			switch (textNode.type) {
 				case TREE_NODE_TYPES.boldText:
 					html += this.getHtmlFromBoldTextNode(textNode);
@@ -127,6 +131,9 @@ class Generator {
 				case TREE_NODE_TYPES.strikethroughText:
 					html += this.getHtmlFromStrikethroughTextNode(textNode);
 					break;
+				case TREE_NODE_TYPES.code:
+					html += this.getHtmlFromCodeNode(textNode);
+					break;
 				case TREE_NODE_TYPES.linkAlias:
 					html += this.getHtmlFromLinkAliasNode(textNode);
 					break;
@@ -137,31 +144,35 @@ class Generator {
 					html += this.getHtmlFromImageNode(textNode);
 					break;
 				default:
-					html += textNode.value;
+					html += textNode.text;
 			}
-		}
+		});
 
-		return html;		
+		return html;
 	}
 
 	getHtmlFromBoldTextNode(boldTextNode) {
-		return `<strong>${this.getHtmlFromTextNodes(boldTextNode.text)}</strong>`;
+		return `<strong>${this.getHtmlFromTextNodes(boldTextNode.textNodes)}</strong>`;
 	}
 
 	getHtmlFromItalicTextNode(italicTextNode) {
-		return `<em>${this.getHtmlFromTextNodes(italicTextNode.text)}</em>`;
+		return `<em>${this.getHtmlFromTextNodes(italicTextNode.textNodes)}</em>`;
 	}
 
 	getHtmlFromUnderlinedTextNode(underlinedTextNode) {
-		return `<u>${this.getHtmlFromTextNodes(underlinedTextNode.text)}</u>`;
+		return `<u>${this.getHtmlFromTextNodes(underlinedTextNode.textNodes)}</u>`;
 	}
 
 	getHtmlFromHighlightedTextNode(underlinedTextNode) {
-		return `<mark>${this.getHtmlFromTextNodes(underlinedTextNode.text)}</mark>`;
+		return `<mark>${this.getHtmlFromTextNodes(underlinedTextNode.textNodes)}</mark>`;
 	}
 
 	getHtmlFromStrikethroughTextNode(strikethroughTextNode) {
-		return `<del>${this.getHtmlFromTextNodes(strikethroughTextNode.text)}</del>`;
+		return `<del>${this.getHtmlFromTextNodes(strikethroughTextNode.textNodes)}</del>`;
+	}
+
+	getHtmlFromCodeNode(codeNode) {
+		return `<code>${codeNode.body}</code>`;
 	}
 
 	getHtmlFromLinkAliasNode(linkAliasNode) {
@@ -173,11 +184,11 @@ class Generator {
 	}
 
 	getUrlWithProtocol(url) {
-		var httpPattern = /^((http|https|ftp):\/\/)/;
+		const httpPattern = /^((http|https|ftp):\/\/)/;
 
 		let validHref = url;
-		if(!httpPattern.test(url)) {
-			validHref = "//" + url;
+		if (!httpPattern.test(url)) {
+			validHref = `//${url}`;
 		}
 
 		return validHref;

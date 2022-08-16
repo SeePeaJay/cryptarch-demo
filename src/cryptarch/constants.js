@@ -1,62 +1,77 @@
 const RULES = {
-	block: { // used to match against a block
-		title: /^\* (.|\n(?!\t*\n)(?!\t*$))*$/,
-		level1Subtitle: /^=1= (.|\n(?!\t*\n)(?!\t*$))*$/,
-		level2Subtitle: /^=2= (.|\n(?!\t*\n)(?!\t*$))*$/,
-		level3Subtitle: /^=3= (.|\n(?!\t*\n)(?!\t*$))*$/,
-		unorderedList: /^\. (.|\n(?!\t*\n)(?!\t*$))*$/,
-		orderedList: /^\d{1,9}\. (.|\n(?!\t*\n)(?!\t*$))*$/,
+	/*
+		Block rules are designed to match against a block.
+		As of this writing, tabs should not count as indent, so they are excluded from the rules for now.
+	*/
+	block: {
+		title: /^\* (?:.|\n(?! *\n)(?! *$))+$/,
+		level1Subtitle: /^\*_1 (?:.|\n(?! *\n)(?! *$))+$/,
+		level2Subtitle: /^\*_2 (?:.|\n(?! *\n)(?! *$))+$/,
+		level3Subtitle: /^\*_3 (?:.|\n(?! *\n)(?! *$))+$/,
+		unorderedList: /^\. (?:.|\n(?! *\n)(?! *$))+$/,
+		orderedList: /^\d{1,9}\. (?:.|\n(?! *\n)(?! *$))+$/,
 		horizontalRule: /^---[^\S\n]*$/,
 
-		image: /^\$(?!\n{})(.|\n(?!\t*\n)(?!\t*$))+?{}$/,
+		image: /^\$[^{}\s]+?{}$/,
 	},
-	inline: { // used to match against text
-		boldText: /`@(?!\n@`)(?:.|\n(?!\t*\n)(?!\t*$))+?@`/,
-		italicText: /`\/(?!\n\/`)(?:.|\n(?!\t*\n)(?!\t*$))+?\/`/,
-		underlinedText: /`_(?!\n_`)(?:.|\n(?!\t*\n)(?!\t*$))+?_`/,
-		highlightedText: /`=(?!\n=`)(?:.|\n(?!\t*\n)(?!\t*$))+?=`/,
-		strikethroughText: /`-(?!\n-`)(?:.|\n(?!\t*\n)(?!\t*$))+?-`/,
-		linkAlias: /`_(?!\n_\()(?:.|\n(?!\t*\n)(?!\t*$))+?_\((?!\n\)`)(?:.|\n(?!\t*\n)(?!\t*$))+?\)`/,
+
+	/*
+		Inline rules are designed to match against text; tabs and spaces may count as text for now.
+	*/
+	inline: {
+		boldText: /@@.+?@@/,
+		italicText: /\/\/.+?\/\//,
+		underlinedText: /__.+?__/,
+		highlightedText: /==.+?==/,
+		strikethroughText: /--.+?--/,
+		code: /<\/.+?>/,
+		linkAlias: /__.+?__\(.+\)/,
 		autolink: /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/,
 
-		image: /\$(?!\n{})(.|\n(?!\t*\n)(?!\t*$))+?{}/,
+		image: /\$[^{}\s]+?{}/,
 	},
-	marker: { // used to match against each respective element
+
+	/*
+		Maker rules are designed to match against each respective element.
+	*/
+	marker: {
 		titleMarker: /^\* /,
-		level1SubtitleMarker: /^=1= /,
-		level2SubtitleMarker: /^=2= /,
-		level3SubtitleMarker: /^=3= /,
+		level1SubtitleMarker: /^\*_1 /,
+		level2SubtitleMarker: /^\*_2 /,
+		level3SubtitleMarker: /^\*_3 /,
 		unorderedListMarker: /^. /,
 		orderedListMarker: /^\d{1,9}. /,
 
 		leftImageMarker: /^\$/,
 		rightImageMarker: /{}$/,
 
-		leftBoldTextMarker: /^`@/,
-		rightBoldTextMarker: /@`$/,
-		leftItalicTextMarker: /^`\//,
-		rightItalicTextMarker: /\/`$/,
-		leftUnderlinedTextMarker: /^`_/,
-		rightUnderlinedTextMarker: /_`$/,
-		leftHighlightedTextMarker: /^`=/,
-		rightHighlightedTextMarker: /=`$/,
-		leftStrikethroughTextMarker: /^`-/,
-		rightStirkethroughTextMarker: /-`$/,
-		linkAliasMarker1: /^`_/,
-		linkAliasMarker2: /_\(/,
-		linkAliasMarker3: /\)`/,
+		leftBoldTextMarker: /^@@/,
+		rightBoldTextMarker: /@@$/,
+		leftItalicTextMarker: /^\/\//,
+		rightItalicTextMarker: /\/\/$/,
+		leftUnderlinedTextMarker: /^__/,
+		rightUnderlinedTextMarker: /__$/,
+		leftHighlightedTextMarker: /^==/,
+		rightHighlightedTextMarker: /==$/,
+		leftStrikethroughTextMarker: /^--/,
+		rightStirkethroughTextMarker: /--$/,
+		leftCodeMarker: /^<\//,
+		rightCodeMarker: />$/,
+		linkAliasMarker1: /^__/,
+		linkAliasMarker2: /__\(/,
+		linkAliasMarker3: /\)/,
 	},
-	rootBlockSeparator: /\n(?:\s|\t)*\n/, 
-		/* 
-			used to match against the whole engram
-			still need non-capturing group to split properly
-		*/
-	listItemSeparator: /\n[^\S\n]*(?=(?:\d{1,9})?\. )/
-		/*
-			This specific pattern only works when matched against a list.
-			There is a lookbehind solution: /(?<!\n)\n[^\S\n]*(?=(\d{1,9})?\. )/. However, lookbehind is not supported in all browsers.
-			Closest attempt with lookahead: /((?!\n).|^)\n[^\S\n]*(?=(\d{1,9})?\. )/
-		*/
+
+	/*
+		This specific pattern is designed to match against the whole engram.
+	*/
+	rootBlockSeparator: /\n(?: |\t)*\n/,
+
+	/*
+		This specific pattern is designed to match against a list only.
+		Translation: match newline w/ n spaces, as long as a proper list item follows.
+	*/
+	listItemSeparator: /\n *(?=(?:\d{1,9})?\. (?! *\n| *$))/,
 };
 
 const TOKENS = { // perhaps split into TOKEN_TYPES and TOKEN_VALUES? TOKEN_TEMPLATES?
@@ -122,6 +137,15 @@ const TOKENS = { // perhaps split into TOKEN_TYPES and TOKEN_VALUES? TOKEN_TEMPL
 	rightStrikethroughTextMarker: {
 		type: 'RIGHT STRIKETHROUGH TEXT MARKER',
 	},
+	leftCodeMarker: {
+		type: 'LEFT CODE MARKER',
+	},
+	codeBody: {
+		type: 'CODE BODY',
+	},
+	rightCodeMarker: {
+		type: 'RIGHT CODE MARKER',
+	},
 	linkAliasMarker1: {
 		type: 'LINK ALIAS MARKER 1',
 	},
@@ -142,7 +166,7 @@ const TOKENS = { // perhaps split into TOKEN_TYPES and TOKEN_VALUES? TOKEN_TEMPL
 	},
 
 	unmarkedText: {
-		type: 'UNMARKED TEXT'
+		type: 'UNMARKED TEXT',
 	},
 
 	rootBlockSeparator: {
@@ -150,8 +174,8 @@ const TOKENS = { // perhaps split into TOKEN_TYPES and TOKEN_VALUES? TOKEN_TEMPL
 	},
 	listItemSeparator: {
 		type: 'LIST ITEM SEPARATOR',
-	}
-}
+	},
+};
 // I guess we can create a Token type in the future? And we could create custom token templates here.
 
 const TREE_NODE_TYPES = {
@@ -174,6 +198,7 @@ const TREE_NODE_TYPES = {
 	underlinedText: 'underlined text',
 	highlightedText: 'highlighted text',
 	strikethroughText: 'strikethrough text',
+	code: 'code',
 	linkAlias: 'link alias',
 	autolink: 'autolink',
 	unmarkedText: 'unmarked text',

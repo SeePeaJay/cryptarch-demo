@@ -144,7 +144,7 @@ class Generator {
 					html += this.getHtmlFromImageNode(textNode);
 					break;
 				default:
-					html += textNode.text;
+					html += textNode.text.replace('<', '&lt;').replace('>', '&gt;'); // https://stackoverflow.com/a/14659248
 			}
 		});
 

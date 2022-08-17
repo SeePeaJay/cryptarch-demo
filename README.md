@@ -1,15 +1,21 @@
 # cryptarch-demo
-A simple editor used to demonstrate the capacity of [cryptarch](https://github.com/SeePeaJay/cryptarch). 
+A simple editor to demonstrate the capacity of [cryptarch](https://github.com/SeePeaJay/cryptarch).
+
+### Built With
+* Node
+* npm
+* Vue
 
 ## Project setup
-```
-npm install
-```
+### Getting Started
+0. make sure [Node](https://nodejs.org/en/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), and [Vue](https://vuejs.org/guide/quick-start.html#with-build-tools) are already installed, then
+1. run `npm install`
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+### Develop Locally
+* run `npm run serve`
+
+### Deploy to Github Pages
+* run `./deploy.sh`
 
 ### Compiles and minifies for production
 ```

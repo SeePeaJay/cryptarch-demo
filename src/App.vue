@@ -6,7 +6,7 @@
 </template>
 
 <script>
-const Cryptarch = require('../src/cryptarch/cryptarch');
+const { decrypt } = require('cryptarch');
 
 export default {
   name: 'App',
@@ -17,9 +17,7 @@ export default {
   },
 	computed: {
 		engramInHtml() {
-			let cryptarch = new Cryptarch();
-			const html = cryptarch.decrypt(this.engram);
-			cryptarch = null; // is there a better way to prevent memory leak than this?
+			const html = decrypt(this.engram);
 			return html;
 		}
 	},
